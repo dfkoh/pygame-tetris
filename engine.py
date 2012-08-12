@@ -69,7 +69,7 @@ class Piece:
 	L_SHAPE = {"tiles" : ((0,0), (0,1), (0,2), (1,2)),
 			   "x_adj" : 1,
 			   "y_adj" : 2,
-			   "color" : Color.RED}
+			   "color" : Color.YELLOW}
 	R_SHAPE = {"tiles" : ((0,0), (1,0), (0,1), (0,2)),
 			   "x_adj" : 1,
 			   "y_adj" : 2,
@@ -93,7 +93,7 @@ class Piece:
 	I_SHAPE = {"tiles" : ((0,0), (1,0), (2,0), (3,0)),
 			   "x_adj" : 3,
 			   "y_adj" : 0,
-			   "color" : Color.YELLOW}
+			   "color" : Color.RED}
 	SHAPES = (L_SHAPE, R_SHAPE, O_SHAPE, T_SHAPE, S_SHAPE, Z_SHAPE, I_SHAPE)
 
 	def __init__(self, x, y, shape, color, rot=0):
