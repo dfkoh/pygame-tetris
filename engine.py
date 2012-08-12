@@ -148,6 +148,7 @@ class Board:
 
 	def reset(self):
 		self.piece = None
+		self.finalize_ready = False
 		self.tiles = defaultdict(lambda:Color.CLEAR)
 		self.score = 0
 		self.level = 1
@@ -196,11 +197,16 @@ class Board:
 		if self.piece is None:
 			return
 		if not self.piece_can_move(0, 1):
-			self.finalize_piece()
-			if self.autogen:
-				self.generate_piece()
+			# We want to give a short leeway for the player to move the piece, once it's hit bottom
+			if self.finalize_ready:
+				self.finalize_piece()
+				if self.autogen:
+					self.generate_piece()
+			else:
+				self.finalize_ready = True
 		else:
 			self.piece.move(0, 1)
+			self.finalize_ready = False
 
 	def full_drop_piece(self):
 		"""Either drops a piece down one level, or finalizes it and creates another piece."""
