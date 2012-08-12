@@ -141,14 +141,18 @@ class Board:
 	def __init__(self, n_columns, n_rows, board = None, autogen = True):
 		self.height = n_rows
 		self.columns = [self.height] * n_columns
-		self.reset()
 		self.rand = Random()
-		self.color_index = 0
 		self.autogen = autogen
+
+		self.reset()
 
 	def reset(self):
 		self.piece = None
 		self.tiles = defaultdict(lambda:Color.CLEAR)
+		self.score = 0
+		self.level = 1
+		self.lines = 0
+		self.game_over = False
 
 	def clear_tile(self, x, y):
 		self.tiles[(x,y)] = Color.CLEAR
@@ -179,7 +183,7 @@ class Board:
 			self.columns[x] = y
 
 	def piece_can_move(self, x_move, y_move):
-		"""Returns True if a piece can drop, False otherwise."""
+		"""Returns True if a piece can move, False otherwise."""
 		for base_x, base_y in self.piece:
 			x = x_move + base_x
 			y = y_move + base_y
@@ -230,18 +234,34 @@ class Board:
 
 	def generate_piece(self):
 		"""Creates a new piece at random and places it at the top of the board."""
+		if self.game_over:
+			return
+
 		middle = len(self.columns) // 2
 		shape = self.rand.choice(Piece.SHAPES)
 		self.piece = Piece(middle - shape["x_adj"], 0, shape, shape["color"])
-		self.color_index = (self.color_index + 1) % len(Color.colors())
+
+		if not self.piece_can_move(0, 0):
+			# Show piece on the board
+			self.finalize_piece()
+
+			# And mark the game as over
+			self.game_over = True
+			self.piece = None
 
 	def finalize_piece(self):
 		for x, y in self.piece:
 			self.set_tile_color(x, y, self.piece.color)
 
+		rows_cleared = 0
 		for y in range(0, self.height + 1):
 			if self.row_full(y):
 				self.clear_row(y)
+				rows_cleared += 1
+
+		self.score += (rows_cleared * rows_cleared) * 10
+		self.lines += rows_cleared
+		self.level = self.lines // 10 + 1
 
 		self.piece = None
 
@@ -252,3 +272,5 @@ class Board:
 			v.render_tile(x, y, color)
 		if self.piece is not None:
 			self.piece.render(v)
+		v.set_score(self.score)
+		v.set_level(self.level)
